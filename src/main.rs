@@ -39,9 +39,9 @@ impl Closure {
 
         // Wrap closure into Box and get the raw pointer of it.
         //
-        // The type of Box needs to be specified otherwise we will get a Box that points
-        // to the actual closure instead of its `FnMut()` implementation. That means
-        // `call_closure` cast it to an incorrect pointer and cause a crash.
+        // If we don't specify the type of Box then we will get a Box that points
+        // to the actual closure instead of its `FnMut()` implementation. The result
+        // will be an incorrect pointer casting in `call_closure` and a crash.
         let fnmut_box: Box<dyn FnMut()> = Box::new(closure);
         let fnmut_ptr = Box::into_raw(fnmut_box);
 
