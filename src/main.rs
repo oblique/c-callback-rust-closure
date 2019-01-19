@@ -1,4 +1,5 @@
 use libc::c_void;
+use std::mem;
 use std::ptr;
 
 extern "C" {
@@ -20,10 +21,16 @@ impl Closure {
     fn dealloc_cb(&mut self) {
         if !self.cb.is_null() {
             unsafe {
+                // de-register closure before deallocation
+                // otherwise we have dangling pointer
+                register_cb(
+                    mem::transmute::<*const c_void, extern "C" fn(_: *mut c_void)>(ptr::null()),
+                    ptr::null_mut(),
+                );
                 let _box_fnmut = Box::from_raw(*self.cb);
                 let _box_box_fnmut = Box::from_raw(self.cb);
+                self.cb = ptr::null_mut();
             }
-            self.cb = ptr::null_mut();
         }
     }
 
